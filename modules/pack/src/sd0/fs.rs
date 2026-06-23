@@ -27,7 +27,7 @@ pub struct Converter {
     /// Whether to generate 'si0' files
     pub generate_segment_index: bool,
     /// Compression level (0-9). Defaults to best (9) if not set.
-    pub compression: Option<Compression>,
+    pub compression: Option<u32>,
 }
 
 const fn compress_bound(source_len: usize) -> usize {
@@ -54,7 +54,10 @@ impl Converter {
         let mut start: u32 = 0;
         let mut compressed_start: u32 = 0;
 
-        let level = self.compression.unwrap_or(Compression::best());
+        let level = self
+            .compression
+            .map(Compression::new)
+            .unwrap_or_else(Compression::best);
         let mut cmp = flate2::Compress::new(level, true);
 
         output_file.write_all(b"sd0\x01\xff")?;
